@@ -1188,6 +1188,78 @@ partitions the input space into linear regions, with boundaries
    structure, supporting his theoretical framework.
     </pre>
 
+    <h2>Conservation Loss Fix - Critical Bug Found!</h2>
+
+    <div class="success">
+        <strong>GEODESIC PROPERTY NOW FULLY VALIDATED!</strong> A bug in the conservation loss was identified
+        and fixed, achieving both high regression accuracy AND true P conservation.
+    </div>
+
+    <h3>The Bug</h3>
+    <pre>
+# OLD (broken): Only checked consecutive pairs
+loss_P = ((P_next - P)**2).mean()  # P(t+1) ≈ P(t)
+
+PROBLEM: This allows slow drift!
+  P₁ → P₂ → P₃ → ... → Pₙ
+  Each step small, but total drift large.
+
+Result: CV = 1.36 (136% variation within trajectory!)
+    </pre>
+
+    <h3>The Fix</h3>
+    <pre>
+# NEW (working): Minimize variance across ALL windows
+conservation_loss = P_pred.var()  # Var(P) over entire trajectory
+
+This enforces true conservation: P must be the SAME at all points.
+    </pre>
+
+    <h3>Results Comparison</h3>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Before Fix</th>
+            <th>After Fix</th>
+            <th>Threshold</th>
+        </tr>
+        <tr>
+            <td>r(P, I<sub>true</sub>)</td>
+            <td style="color: #2ca02c;">0.9813</td>
+            <td style="color: #2ca02c;"><strong>0.9899</strong></td>
+            <td>&gt; 0.95</td>
+        </tr>
+        <tr>
+            <td>mean CV (conservation)</td>
+            <td style="color: #d62728;">1.36 (136%)</td>
+            <td style="color: #2ca02c;"><strong>0.066 (6.6%)</strong></td>
+            <td>&lt; 0.10</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td style="color: #d62728;">FAIL</td>
+            <td style="color: #2ca02c;"><strong>PASS</strong></td>
+            <td>-</td>
+        </tr>
+    </table>
+
+    <h3>Individual Trajectory CVs (After Fix)</h3>
+    <pre>
+['0.023', '0.022', '0.029', '0.073', '0.026', '0.038', '0.034', '0.002', '0.013', '0.023']
+
+Most trajectories have CV &lt; 5% - true conservation achieved!
+    </pre>
+
+    <h3>Key Insight</h3>
+    <div class="success">
+        <strong>Glinsky's geodesic claim IS validated</strong> when the MLP is trained with proper conservation loss.
+        The MLP CAN learn action P that is both:
+        <ul>
+            <li><strong>Correlated with true action</strong> (r = 0.99)</li>
+            <li><strong>Conserved within trajectories</strong> (CV &lt; 7%)</li>
+        </ul>
+    </div>
+
     <h2>Files</h2>
     <ul>
         <li><a href="rectifier.py">rectifier.py</a> - Core R, R_sheeted, R_inv functions</li>
@@ -1210,6 +1282,12 @@ partitions the input space into linear regions, with boundaries
         <li><a href="test_mlp_singularities.py">test_mlp_singularities.py</a> - MLP singularity learning test</li>
         <li><a href="hamiltonian_systems.py">hamiltonian_systems.py</a> - SHO, Duffing, Pendulum systems</li>
         <li><a href="test_geodesic_hamiltonian.py">test_geodesic_hamiltonian.py</a> - Rigorous geodesic tests</li>
+        <li><a href="rigorous_tests.py">rigorous_tests.py</a> - Pre-specified pass/fail tests</li>
+        <li><a href="test_uncertainty.py">test_uncertainty.py</a> - Uncertainty relation tests (J₀ = E₀/ω₀)</li>
+        <li><a href="test_hjb_action.py">test_hjb_action.py</a> - HJB-MLP action learning tests</li>
+        <li><a href="test_hjb_conservation_fix.py">test_hjb_conservation_fix.py</a> - <strong>Conservation loss fix (key result!)</strong></li>
+        <li><a href="HONEST_ASSESSMENT.md">HONEST_ASSESSMENT.md</a> - What's verified vs claimed</li>
+        <li><a href="RIGOROUS_TESTS.md">RIGOROUS_TESTS.md</a> - Test specifications with pass/fail criteria</li>
         <li><a href="wavelet_fix.py">wavelet_fix.py</a> - QMF relations and boundary handling</li>
         <li><a href="wavelets_investigation.md">wavelets_investigation.md</a> - Wavelet theory notes</li>
         <li><a href="CONTEXT.md">CONTEXT.md</a> - Project context</li>
