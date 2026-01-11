@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheeted Rectifier - Complete Implementation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .code-box {
+            background: #0d1b2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            border: 1px solid #1b4965;
+        }
+        .code-box pre {
+            margin: 0;
+            white-space: pre;
+        }
+        .keyword { color: #ff79c6; }
+        .function { color: #50fa7b; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+        .number { color: #bd93f9; }
+        h2 {
+            color: #4ade80;
+            border-bottom: 2px solid #4ade80;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+        .formula {
+            background: #1b4965;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3em;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #334;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background: #1b4965;
+            color: #00d4ff;
+        }
+        tr:nth-child(even) { background: #1a1a3e; }
+        .good { color: #4ade80; font-weight: bold; }
+        .note {
+            background: #2d2d1f;
+            border-left: 4px solid #ffd93d;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .success {
+            background: #1f2d1f;
+            border-left: 4px solid #4ade80;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        a { color: #00d4ff; }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #1b4965;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to main page</a>
+
+    <h1>The Sheeted Rectifier</h1>
+    <p class="subtitle">Complete Half-Plane-Preserving Implementation</p>
+
+    <h2>The Formula</h2>
+
+    <div class="formula">
+        R₀(z) = −i · (w ± √(w−1)·√(w+1))
+        <br><br>
+        where w = 2z/π, and + for Im(z) ≥ 0, − for Im(z) < 0
+    </div>
+
+    <h2>Complete Python Implementation</h2>
+
+    <div class="code-box">
+<pre><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="keyword">def</span> <span class="function">R0_sheeted</span>(z):
+    <span class="string">"""
+    Sheeted R₀: different branches for upper/lower half-planes.
+
+    Im(z) ≥ 0: use w + s → |R₀| ≥ 1 (exterior of disk)
+    Im(z) < 0: use w - s → |R₀| ≤ 1 (interior of disk)
+    """</span>
+    z = np.asarray(z, dtype=np.complex128)
+    w = (<span class="number">2.0</span> / np.pi) * z
+    s = np.sqrt(w - <span class="number">1.0</span>) * np.sqrt(w + <span class="number">1.0</span>)
+
+    w_plus = w + s   <span class="comment"># |R₀| ≥ 1</span>
+    w_minus = w - s  <span class="comment"># |R₀| ≤ 1</span>
+
+    R0_plus = -<span class="number">1j</span> * w_plus
+    R0_minus = -<span class="number">1j</span> * w_minus
+
+    use_plus = np.imag(z) >= <span class="number">0</span>
+    <span class="keyword">return</span> np.where(use_plus, R0_plus, R0_minus)
+
+
+<span class="keyword">def</span> <span class="function">R_sheeted</span>(z):
+    <span class="string">"""The Sheeted Analytic Rectifier."""</span>
+    <span class="keyword">return</span> <span class="number">1j</span> * np.log(R0_sheeted(z))
+
+
+<span class="keyword">def</span> <span class="function">R_inv</span>(w):
+    <span class="string">"""
+    R⁻¹(w) = (π/2) · sin(w)
+
+    The CORRECT inverse. NOT cos(w)!
+    """</span>
+    w = np.asarray(w, dtype=np.complex128)
+    <span class="keyword">return</span> (np.pi / <span class="number">2</span>) * np.sin(w)
+</pre>
+    </div>
+
+    <h2>Properties Verified</h2>
+
+    <table>
+        <tr>
+            <th>Property</th>
+            <th>Status</th>
+            <th>Details</th>
+        </tr>
+        <tr>
+            <td>Half-plane preservation</td>
+            <td class="good">✓</td>
+            <td>Im(z) > 0 → Im(R) > 0, Im(z) < 0 → Im(R) < 0</td>
+        </tr>
+        <tr>
+            <td>Imaginary axis → itself</td>
+            <td class="good">✓</td>
+            <td>Re(R) = 0 for all points on imaginary axis</td>
+        </tr>
+        <tr>
+            <td>R⁻¹(R(z)) = z</td>
+            <td class="good">✓</td>
+            <td>All round-trip tests pass</td>
+        </tr>
+        <tr>
+            <td>R(R⁻¹(w)) = w</td>
+            <td class="good">✓</td>
+            <td>All round-trip tests pass</td>
+        </tr>
+        <tr>
+            <td>Convergence rate λ = 2/π</td>
+            <td class="good">✓</td>
+            <td>λ ≈ 0.6366 measured from iteration</td>
+        </tr>
+        <tr>
+            <td>Converges to origin</td>
+            <td class="good">✓</td>
+            <td>Both Re and Im → 0</td>
+        </tr>
+        <tr>
+            <td>Blue points (±π/2) → ±i</td>
+            <td class="good">✓</td>
+            <td>Branch points map correctly</td>
+        </tr>
+    </table>
+
+    <h2>Key Insight: Two Riemann Sheets</h2>
+
+    <div class="note">
+        <strong>The sheeted version uses different branches of h⁻¹(w) = w ± √(w−1)·√(w+1):</strong>
+        <ul>
+            <li><strong>Upper half-plane (Im(z) ≥ 0):</strong> Use + sign → |R₀| ≥ 1 (exterior of unit disk)</li>
+            <li><strong>Lower half-plane (Im(z) < 0):</strong> Use − sign → |R₀| ≤ 1 (interior of unit disk)</li>
+        </ul>
+        This ensures the imaginary axis maps to itself, preserving half-planes under iteration.
+    </div>
+
+    <h2>The Inverse Formula</h2>
+
+    <div class="formula">
+        R⁻¹(w) = (π/2) · sin(w)
+    </div>
+
+    <div class="success">
+        <strong>Important:</strong> The inverse is <code>(π/2)·sin(w)</code>, NOT <code>(π/2)·cos(w)</code>!
+        <br><br>
+        This was verified by round-trip tests: R⁻¹(R(z)) = z for all tested z values.
+    </div>
+
+    <h2>Convergence Under Iteration</h2>
+
+    <p>Starting from any z₀, the iteration z_{n+1} = R(z_n) converges to the origin:</p>
+
+    <table>
+        <tr>
+            <th>z₀</th>
+            <th>After 30 iterations</th>
+            <th>λ estimate</th>
+        </tr>
+        <tr>
+            <td>1 + 2i</td>
+            <td>≈ 0</td>
+            <td>0.6352</td>
+        </tr>
+        <tr>
+            <td>−2 + i</td>
+            <td>≈ 0</td>
+            <td>0.6392</td>
+        </tr>
+        <tr>
+            <td>3i</td>
+            <td>≈ 0</td>
+            <td>0.6338</td>
+        </tr>
+        <tr>
+            <td>−1 − 3i</td>
+            <td>≈ 0</td>
+            <td>0.6339</td>
+        </tr>
+        <tr>
+            <td>0.5 − 0.5i</td>
+            <td>≈ 0</td>
+            <td>0.6369</td>
+        </tr>
+    </table>
+
+    <p style="text-align: center; color: #888;">
+        Expected λ = 2/π ≈ 0.6366 — <span class="good">Matches!</span>
+    </p>
+
+    <h2>Download</h2>
+
+    <p>
+        <a href="rectifier.py">Download rectifier.py</a> — Complete implementation with both original and sheeted versions.
+    </p>
+
+</body>
+</html>

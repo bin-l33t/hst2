@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rectifier File Upload</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #00d4ff; text-align: center; }
+        .upload-form {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        input[type="file"] {
+            background: #0f3460;
+            color: #fff;
+            padding: 15px;
+            border: 2px dashed #00d4ff;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        button {
+            background: linear-gradient(135deg, #00d4ff, #7b68ee);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        button:hover { opacity: 0.9; }
+        .note {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        code {
+            background: #1a1a2e;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rectifier Project</h1>
+    <h2 style="color: #7b68ee; text-align: center;">File Upload</h2>
+
+    <div class="upload-form">
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label for="file">Select a file to upload:</label>
+            <input type="file" name="file" id="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
+
+    <div class="note">
+        <strong>Usage:</strong>
+        <ol>
+            <li>Run <code>python3 upload_server.py</code> in the rectifier directory</li>
+            <li>Visit <code>http://localhost:8080</code></li>
+            <li>Or via SSH tunnel: <code>ssh -L 8080:localhost:8080 user@host</code></li>
+        </ol>
+    </div>
+</body>
+</html>

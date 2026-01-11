@@ -1,0 +1,34 @@
+# Generated artifacts - don't track
+*.png
+*.pdf
+*.tar.gz
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Text extractions from PDFs
+*.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
