@@ -20,7 +20,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from hamiltonian_systems import PendulumOscillator, simulate_hamiltonian
-from hst import hst_forward_pywt
+from hst import hst_forward_pywt, extract_features
 
 
 def theoretical_omega(E):
@@ -36,17 +36,6 @@ def theoretical_omega(E):
         return 2 * np.pi / T
     except:
         return np.nan
-
-
-def extract_features(z):
-    """Extract HST features."""
-    coeffs = hst_forward_pywt(z.real, J=3, wavelet_name='db8')
-    features = []
-    for c in coeffs['cD']:
-        features.extend([np.mean(np.abs(c)), np.std(np.abs(c)), np.mean(np.abs(c)**2)])
-    ca = coeffs['cA_final']
-    features.extend([np.mean(np.abs(ca)), np.std(np.abs(ca)), np.mean(np.abs(ca)**2)])
-    return np.array(features)
 
 
 def measure_omega(t, q):

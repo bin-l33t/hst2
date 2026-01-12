@@ -368,6 +368,114 @@ def hst_inverse(S_coeffs, u_final, J=None, wavelet_name='db8',
     return f_rec
 
 
+# ============================================================
+# FEATURE EXTRACTION (Canonical implementation with phase)
+# ============================================================
+
+def extract_features(z, J=3, wavelet_name='db8'):
+    """
+    Extract HST features from complex trajectory segment.
+
+    CANONICAL IMPLEMENTATION: Includes both magnitude AND phase features!
+
+    The complex trajectory z = q + i·p/ω encodes:
+      - MAGNITUDE |z| → Action P
+      - PHASE arg(z) → Angle Q
+
+    Parameters
+    ----------
+    z : np.ndarray
+        Complex trajectory window (z = q + i·p/ω)
+    J : int
+        Number of HST layers
+    wavelet_name : str
+        Wavelet for HST decomposition
+
+    Returns
+    -------
+    features : np.ndarray
+        Feature vector containing:
+        - Magnitude features from HST coefficients
+        - Phase features from HST coefficients
+        - Direct phase features from z
+    """
+    # Apply HST to BOTH real and imaginary parts
+    coeffs_real = hst_forward_pywt(z.real, J=J, wavelet_name=wavelet_name)
+    coeffs_imag = hst_forward_pywt(z.imag, J=J, wavelet_name=wavelet_name)
+
+    features = []
+
+    # Detail coefficients at each level
+    for j in range(len(coeffs_real['cD'])):
+        cD_real = coeffs_real['cD'][j]
+        cD_imag = coeffs_imag['cD'][j]
+
+        # Construct complex coefficient
+        cD_complex = cD_real + 1j * cD_imag
+
+        # MAGNITUDE features (for P/action)
+        features.extend([
+            np.mean(np.abs(cD_complex)),
+            np.std(np.abs(cD_complex)),
+        ])
+
+        # PHASE features (for Q/angle) - circular statistics
+        phases = np.angle(cD_complex)
+        features.extend([
+            np.mean(np.cos(phases)),  # Circular mean (real part)
+            np.mean(np.sin(phases)),  # Circular mean (imag part)
+            np.std(phases),           # Phase dispersion
+        ])
+
+    # Final approximation coefficients
+    cA_real = coeffs_real['cA_final']
+    cA_imag = coeffs_imag['cA_final']
+    cA_complex = cA_real + 1j * cA_imag
+
+    # Magnitude features
+    features.extend([
+        np.mean(np.abs(cA_complex)),
+        np.std(np.abs(cA_complex)),
+    ])
+
+    # Phase features
+    phases_cA = np.angle(cA_complex)
+    features.extend([
+        np.mean(np.cos(phases_cA)),
+        np.mean(np.sin(phases_cA)),
+    ])
+
+    # DIRECT PHASE from complex trajectory z
+    # This encodes Q directly as arg(z)
+    direct_phases = np.angle(z)
+    mean_phase = np.arctan2(np.mean(np.sin(direct_phases)),
+                           np.mean(np.cos(direct_phases)))
+    features.extend([
+        np.sin(mean_phase),
+        np.cos(mean_phase),
+    ])
+
+    return np.array(features)
+
+
+def extract_features_magnitude_only(z, J=3, wavelet_name='db8'):
+    """
+    Extract magnitude-only features (legacy method).
+
+    WARNING: This discards phase information and will NOT predict Q well!
+    Use extract_features() instead for full P and Q prediction.
+
+    Kept for backwards compatibility and diagnostic purposes.
+    """
+    coeffs = hst_forward_pywt(z.real, J=J, wavelet_name=wavelet_name)
+    features = []
+    for c in coeffs['cD']:
+        features.extend([np.mean(np.abs(c)), np.std(np.abs(c)), np.mean(np.abs(c)**2)])
+    ca = coeffs['cA_final']
+    features.extend([np.mean(np.abs(ca)), np.std(np.abs(ca)), np.mean(np.abs(ca)**2)])
+    return np.array(features)
+
+
 def measure_convergence_rate(f, J=5, wavelet_name='db8', verbose=False):
     """
     Measure empirical λ (convergence rate) of the HST cascade.
