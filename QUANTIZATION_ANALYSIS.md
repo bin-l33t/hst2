@@ -276,6 +276,48 @@ To construct the effective Hamiltonian from HST features:
 
 ---
 
+## Washing Out Test Results (January 12, 2026)
+
+### Hypothesis
+If Bohr-Sommerfeld quantization is physical (not just counting), non-integer J/I₀ values should be less stable ("wash out") than integer values under coarse observation.
+
+### Results
+```
+J/I₀    Type      CV
+0.5     non-int   0.0040
+1.0     integer   0.0094
+1.5     non-int   0.0103
+2.0     integer   0.0190
+
+CV ratio (nonint/int): 0.50
+```
+
+**NO washing effect detected.** Non-integer values actually show LOWER variance.
+
+### Interpretation
+This null result is significant:
+
+1. **Action is truly continuous** - no intrinsic instability favors integer values
+2. **No "standing wave" stability** at Bohr-Sommerfeld levels
+3. **Higher actions show more variance** (closer to separatrix)
+
+### Implication for Glinsky's Claim
+Quantization emerges from **periodicity requirements on probability distributions** when phase is unknowable, NOT from dynamical instability that favors integer actions.
+
+The discrete spectrum in the effective Hamiltonian comes from:
+- Topology (Q ∈ S¹)
+- Single-valuedness of probability
+- NOT from intrinsic stability differences
+
+### Note for Future Work
+The measurement-as-interaction mechanism remains untested:
+- Glinsky suggests resolving phase requires "kicking" the system
+- This kick might exchange action in units of I₀
+- Would require coupled system model (measurement apparatus)
+- See `test_washing_out.py` comments
+
+---
+
 ## Next Steps for Effective Hamiltonian
 
 1. ~~**Read Ali Sections 6.4 and 11.6** in detail for explicit formulas~~ **DONE**
