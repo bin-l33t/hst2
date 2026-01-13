@@ -318,6 +318,41 @@ The measurement-as-interaction mechanism remains untested:
 
 ---
 
+## Commensurability Test Results (January 12, 2026)
+
+### Hypothesis
+States with same winding number n = floor(Δτ·ω(E)/2π) should be indistinguishable under coarse observation, even if their E values differ.
+
+### Results
+```
+WITHIN same n:  100% accuracy (expected ~50%)
+ACROSS diff n:  100% accuracy (expected high)
+```
+
+**All pairs perfectly distinguishable!** The hypothesis was incorrect.
+
+### What This Tells Us
+
+| Observable | Behavior |
+|------------|----------|
+| Phase Q | Becomes unobservable (r → 0) |
+| Action P | Remains observable (r → 0.99) |
+| Winding n | Captures phase topology, not action |
+
+The winding number n discretizes **phase** information, not **action**. Since P is still perfectly measurable, states with same n but different E remain distinguishable.
+
+### Correct Interpretation
+
+Glinsky's "quantization" means:
+1. **Phase Q becomes gauge variable** (unobservable)
+2. **Action P remains continuous** (observable)
+3. **Effective spectrum discrete** due to probability periodicity on S¹
+4. But different P values are still distinguishable!
+
+The discrete structure is in the **representation** (effective Hamiltonian), not in the observable P values themselves.
+
+---
+
 ## Next Steps for Effective Hamiltonian
 
 1. ~~**Read Ali Sections 6.4 and 11.6** in detail for explicit formulas~~ **DONE**
